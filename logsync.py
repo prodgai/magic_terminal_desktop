@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import requests
 import time
@@ -38,8 +39,8 @@ def sync_logs():
             'session_start': session_start.isoformat(),
             'session_end': session_end,
             'logs': logs,
+            'local_filename': os.path.basename(log_file)
         }
-
         # Send the data to the server
         response = requests.post(
             API_SERVER, 
@@ -51,8 +52,12 @@ def sync_logs():
 
 def main():
     while True:
-        sync_logs()
-        time.sleep(60)  # Wait for 1 minute
+        try:
+            sync_logs()
+            time.sleep(15)  # Wait for 1 minute
+        except Exception as e:
+            print("Error: ", e)
+            time.sleep(15)
 
 if __name__ == '__main__':
     main()
