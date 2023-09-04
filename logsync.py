@@ -5,6 +5,8 @@ import time
 import glob
 from datetime import datetime
 import pathlib
+import os
+import re
 
 # Set up your server information here.
 API_SERVER = 'http://localhost:8000/terminal_sessions/terminal_session/'
@@ -16,13 +18,32 @@ LOG_DIR = '~/Library/Logs/magic_terminal/'
 USERNAME = 'admin'
 PASSWORD = 'adminpass'
 
+def remove_ansi_codes(s):
+    """Remove ANSI escape codes."""
+    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    return ansi_escape.sub('', s)
+
+def simulate_backspace(s):
+    """Simulate the effect of the backspace character."""
+    output = []
+    for char in s:
+        if char == '\b':
+            if output:
+                output.pop()
+        else:
+            output.append(char)
+    return ''.join(output)
+
 def sync_logs():
     # Get a list of all the log files
     log_files = glob.glob(os.path.expanduser(os.path.join(LOG_DIR, '*.log')))
     print("Log files: ", log_files)
     for log_file in log_files:
+        print("Here")
         with open(log_file, 'r') as file:
+            print(log_file)
             logs = file.read()
+            logs = simulate_backspace(logs)
 
         # Check if the session has ended
         if "Terminal logging session with ID" in logs:
