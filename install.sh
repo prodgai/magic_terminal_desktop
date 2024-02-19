@@ -15,8 +15,12 @@ fi
 # Check for requests module
 python3 -c "import requests" 2>/dev/null
 if [ $? -ne 0 ]; then
-    echo "Python 'requests' module is not installed. Install it with 'pip install requests'."
-    exit 1
+    echo "Python 'requests' module is not installed. Installing..."
+    pip3 install requests  # Automatically install requests using pip
+    if [ $? -ne 0 ]; then
+        echo "Failed to install 'requests' module. Please install it manually with 'pip install requests'."
+        exit 1
+    fi
 fi
 
 # Create logdir if it doesn't exist
@@ -24,19 +28,24 @@ if [ ! -d ~/Library/Logs/magic_terminal_logs ]; then
     mkdir ~/Library/Logs/magic_terminal_logs
 fi
 
-# Move magic_terminal.sh to /usr/local/bin
-cp magic_terminal.sh /usr/local/bin/magic_terminal.sh
-chmod +x /usr/local/bin/magic_terminal.sh
-
-# Append line to source magic_terminal.sh in zshrc only if it doesn't exist
-if ! grep -Fxq "source /usr/local/bin/magic_terminal.sh" ~/.zshrc; then
-    echo "" >> ~/.zshrc
-    echo "source /usr/local/bin/magic_terminal.sh" >> ~/.zshrc
+# Create magic_terminal directory if it doesn't exist
+if [ ! -d /usr/local/bin/magic_terminal ]; then
+    mkdir -p /usr/local/bin/magic_terminal
 fi
 
-# Move Python script to /usr/local/bin
-cp logsync.py /usr/local/bin/logsync.py
-chmod +x /usr/local/bin/logsync.py
+# Move magic_terminal.sh to /usr/local/bin/magic_terminal
+cp magic_terminal.sh /usr/local/bin/magic_terminal/magic_terminal.sh
+chmod +x /usr/local/bin/magic_terminal/magic_terminal.sh
+
+# Append line to source magic_terminal.sh in zshrc only if it doesn't exist
+if ! grep -Fxq "source /usr/local/bin/magic_terminal/magic_terminal.sh" ~/.zshrc; then
+    echo "" >> ~/.zshrc
+    echo "source /usr/local/bin/magic_terminal/magic_terminal.sh" >> ~/.zshrc
+fi
+
+# Move Python script to /usr/local/bin/magic_terminal
+cp logsync.py /usr/local/bin/magic_terminal/logsync.py
+chmod +x /usr/local/bin/magic_terminal/logsync.py
 
 # Create cron job
 # (crontab -l; echo "@reboot /usr/local/bin/python3 /usr/local/bin/logsync.py") | crontab -
