@@ -18,11 +18,6 @@ LOG_DIR = '~/Library/Logs/magic_terminal/'
 USERNAME = 'admin'
 PASSWORD = 'adminpass'
 
-def remove_ansi_codes(s):
-    """Remove ANSI escape codes."""
-    ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
-    return ansi_escape.sub('', s)
-
 def simulate_backspace(s):
     """Simulate the effect of the backspace character."""
     output = []
