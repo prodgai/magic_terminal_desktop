@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Define the installation directory
+MAIN_DIR="/usr/local/bin"
+INSTALL_DIR="$MAIN_DIR/magic_terminal"
+LOGS_DIR="~/Library/Logs/magic_terminal_logs"
+
 # Check for macOS
 if [[ $(uname) != "Darwin" ]]; then
     echo "This script is intended to be used on macOS."
@@ -25,27 +30,37 @@ fi
 
 # Create logdir if it doesn't exist
 if [ ! -d ~/Library/Logs/magic_terminal_logs ]; then
-    mkdir ~/Library/Logs/magic_terminal_logs
+    mkdir $LOGS_DIR
 fi
 
 # Create magic_terminal directory if it doesn't exist
-if [ ! -d /usr/local/bin/magic_terminal ]; then
-    mkdir -p /usr/local/bin/magic_terminal
+if [ ! -d $INSTALL_DIR ]; then
+    mkdir -p $INSTALL_DIR
 fi
 
-# Move magic_terminal.sh to /usr/local/bin/magic_terminal
-cp magic_terminal.sh /usr/local/bin/magic_terminal/magic_terminal.sh
-chmod +x /usr/local/bin/magic_terminal/magic_terminal.sh
+# Move magic_terminal.sh to $INSTALL_DIR
+cp magic_terminal.sh $INSTALL_DIR/magic_terminal.sh
+chmod +x $INSTALL_DIR/magic_terminal.sh
 
 # Append line to source magic_terminal.sh in zshrc only if it doesn't exist
-if ! grep -Fxq "source /usr/local/bin/magic_terminal/magic_terminal.sh" ~/.zshrc; then
+if ! grep -Fxq "source $INSTALL_DIR/magic_terminal.sh" ~/.zshrc; then
     echo "" >> ~/.zshrc
-    echo "source /usr/local/bin/magic_terminal/magic_terminal.sh" >> ~/.zshrc
+    echo "source $INSTALL_DIR/magic_terminal.sh" >> ~/.zshrc
 fi
 
-# Move Python script to /usr/local/bin/magic_terminal
-cp logsync.py /usr/local/bin/magic_terminal/logsync.py
-chmod +x /usr/local/bin/magic_terminal/logsync.py
+# Move Python script to $INSTALL_DIR
+cp logsync.py $INSTALL_DIR/logsync.py
+chmod +x $INSTALL_DIR/logsync.py
+
+# set up CLI
+cp cli/magict.py $INSTALL_DIR/magict.py
+# Create symbolic links in /usr/local/bin
+ln -sf $INSTALL_DIR/magict.py $MAIN_DIR/magict
+chmod +x $INSTALL_DIR/magict.py
+
 
 # Create cron job
 # (crontab -l; echo "@reboot /usr/local/bin/python3 /usr/local/bin/logsync.py") | crontab -
+
+
+echo "Magic Terminal installed successfully. Use "magict help" for CLI options."
