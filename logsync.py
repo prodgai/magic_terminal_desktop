@@ -14,9 +14,8 @@ API_SERVER = 'http://localhost:8000/terminal_sessions/terminal_session/'
 # Set up your log directory here.
 LOG_DIR = '~/Library/Logs/magic_terminal/'
 
-# Set up your authentication information here.
-USERNAME = 'scottopher'
-PASSWORD = 'magictftw'
+# paste your auth token from /account_settings
+TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImJJc245MGctVEFfSjBvSjQ1VzJraSJ9.eyJpc3MiOiJodHRwczovL3Byb2RnLWRldi51cy5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NjVlNGZjZjE3N2I5MGE5YWI0NDE0YzZlIiwiYXVkIjpbImh0dHA6Ly9sb2NhbGhvc3Q6ODAwMCIsImh0dHBzOi8vcHJvZGctZGV2LnVzLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE3MDk1MDkyMTMsImV4cCI6MTcwOTU5NTYxMywiYXpwIjoiMkdrUWVWcG5EaXdaUEp1WG92TUNDZzdNWDJoNWRxTG0iLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIn0.MCyCMpgfIVuEwxkXnvPAB9hDEMjdd-jWnCjjE7SpFJMZHZpcsQyLgTsdSflK95hRH-x4r4cP-dHlZcg71RVpu8OnIgcft0yiBG1ap1CFY4UzzMcRVBa8acz5XhL1RIjD1QcxOd-wBzLgNuIckQG3aSM020rOjJAdspmudQUzxlQQmJGSaVydRcX9Elm41e6E1OzATmgKBHdTOaCo_3pfX8ns0lM9L-1O_dbfKch5jBS0Rl6hmSVLEOIUJZ255nJPkUkDmEV9GXYKiu6Bp_Q6z2pIc4oGjR63oGTHgurNu4il70wud7qPV_6SBQGyPwvJAkjMYPhTBMrxkYlVjNGscA'
 
 # Metadata file to store the last sync time.
 METADATA_FILE = '~/Library/Logs/magic_terminal/sync_metadata.json'
@@ -81,8 +80,12 @@ def sync_logs():
                 'logs': logs,
                 'local_filename': os.path.basename(log_file)
             }
+            # Prepare the headers with the token
+            headers = {
+                'Authorization': f'Bearer {TOKEN}'
+            }
             # Send the data to the server
-            response = requests.post(API_SERVER, auth=(USERNAME, PASSWORD), data=data)
+            response = requests.post(API_SERVER, headers=headers, json=data)
             response.raise_for_status()
 
             # Update the last sync time if this file's modification time is newer
