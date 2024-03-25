@@ -1,4 +1,4 @@
-class MagictTerminal < Formula
+class MagicTerminal < Formula
     desc "Grep for your team's terminal logs."
     homepage "https://github.com/prodgai/magic_terminal_desktop"
     url "https://github.com/prodgai/magic_terminal_desktop/archive/v1.0.0.tar.gz"
