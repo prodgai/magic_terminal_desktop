@@ -1,7 +1,7 @@
 class MagicTerminal < Formula
     desc "Grep for your team's terminal logs."
     homepage "https://github.com/prodgai/magic_terminal_desktop"
-    url "https://github.com/prodgai/magic_terminal_desktop/archive/v1.0.0.tar.gz"
+    url "https://github.com/prodgai/magic_terminal_desktop/archive/refs/tags/beta.tar.gz"
     sha256 "sha256_hash_of_the_tarball"
     license "MIT"
   
