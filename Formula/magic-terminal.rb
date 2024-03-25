@@ -7,7 +7,7 @@ class MagicTerminal < Formula
   
     def install
       # Download the install.sh script
-      system "curl", "-L", "-o", "install.sh", "https://github.com/yourusername/myproject/raw/master/install.sh"
+      system "curl", "-L", "-o", "install.sh", "https://github.com/prodgai/magic_terminal_desktop/raw/master/install.sh"
   
       # Make the install.sh script executable
       system "chmod", "+x", "install.sh"
