@@ -1,4 +1,5 @@
 ## Magic Terminal
 
-# UNLEASH COLLECTIVE WISDOM FROM YOUR TEAM'S SHELL HISTORY
+# Unleach collective wisdom from your teams shell history. Lanching soon.
+
 
