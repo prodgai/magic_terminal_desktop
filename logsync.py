@@ -7,16 +7,21 @@ from datetime import datetime
 import pathlib
 import json
 import atexit
+import logging
+import pyte
+
+# Setup basic logging
+LOG_FILENAME = '/tmp/magic_terminal_logs'
+logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
 
 # Set up your server information here.
-API_SERVER = 'http://localhost:8000/terminal_sessions/terminal_session/'
+API_SERVER = 'http://localhost/terminal_sessions/terminal_session/'
 
 # Set up your log directory here.
 LOG_DIR = '~/Library/Logs/magic_terminal/'
 
 # paste your auth token from /account_settings
-TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImJJc245MGctVEFfSjBvSjQ1VzJraSJ9.eyJpc3MiOiJodHRwczovL3Byb2RnLWRldi51cy5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NjVlNGZjZjE3N2I5MGE5YWI0NDE0YzZlIiwiYXVkIjpbImh0dHA6Ly9sb2NhbGhvc3Q6ODAwMCIsImh0dHBzOi8vcHJvZGctZGV2LnVzLmF1dGgwLmNvbS91c2VyaW5mbyJdLCJpYXQiOjE3MDk1MDkyMTMsImV4cCI6MTcwOTU5NTYxMywiYXpwIjoiMkdrUWVWcG5EaXdaUEp1WG92TUNDZzdNWDJoNWRxTG0iLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIn0.MCyCMpgfIVuEwxkXnvPAB9hDEMjdd-jWnCjjE7SpFJMZHZpcsQyLgTsdSflK95hRH-x4r4cP-dHlZcg71RVpu8OnIgcft0yiBG1ap1CFY4UzzMcRVBa8acz5XhL1RIjD1QcxOd-wBzLgNuIckQG3aSM020rOjJAdspmudQUzxlQQmJGSaVydRcX9Elm41e6E1OzATmgKBHdTOaCo_3pfX8ns0lM9L-1O_dbfKch5jBS0Rl6hmSVLEOIUJZ255nJPkUkDmEV9GXYKiu6Bp_Q6z2pIc4oGjR63oGTHgurNu4il70wud7qPV_6SBQGyPwvJAkjMYPhTBMrxkYlVjNGscA'
-
+TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImJJc245MGctVEFfSjBvSjQ1VzJraSJ9.eyJpc3MiOiJodHRwczovL3Byb2RnLWRldi51cy5hdXRoMC5jb20vIiwic3ViIjoiYXV0aDB8NjVkNDI3NDQ3YzkxODM4ZGU3NTQwMWVjIiwiYXVkIjpbImh0dHA6Ly9sb2NhbGhvc3QiLCJodHRwczovL3Byb2RnLWRldi51cy5hdXRoMC5jb20vdXNlcmluZm8iXSwiaWF0IjoxNzE1MjkwNDY3LCJleHAiOjE3MTUzNzY4NjcsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJhenAiOiIyR2tRZVZwbkRpd1pQSnVYb3ZNQ0NnN01YMmg1ZHFMbSJ9.CiqcJhp7NfCurAAe2n0wNUH2QThzLnN2ZiOQQLKfkNpItX2GEMrCDi712DbanxTyxZVCqnKinUo4CHIgnZO-JTtHu6cgoW5394-4kR1114ViD7KyrdsGY8yzCxftbDcE7Ub4aZng10S2obV-9gm21lHg44SYvhn8FqFUgl25SjbF9wRtlyPCsd9Nwxuhx8Qgu4NMD-1yqfEilvZAENV3uWQUiYjZC4GN_82qUAbldKDKcgMxafgStvBODhxWDT5rMmcaspE7rt9VFw2dDEubU4WlXKmOYxMQuAyzxow9eFUj7Fc6NvJAS4A4gv1l6kK7q6cfFukYz17nAreLQrjOAQ'
 # Metadata file to store the last sync time.
 METADATA_FILE = '~/Library/Logs/magic_terminal/sync_metadata.json'
 
@@ -47,6 +52,20 @@ def save_last_sync_time():
     """Save the last sync time to the metadata file."""
     with open(os.path.expanduser(METADATA_FILE), 'w') as file:
         json.dump({'last_sync_time': last_sync_time}, file)
+    logging.info("Last sync time saved.")
+
+def format_logs(log_content):
+    # Create a screen that emulates the size of a typical terminal
+    screen = pyte.Screen(800, 2000)
+    stream = pyte.ByteStream(screen)
+
+    # Feed the log content to the stream
+    stream.feed(log_content)
+    html_output = ""
+    for line in screen.display:
+        html_output += f"{line}\n".replace(" ", "&nbsp;").replace("<", "&lt;").replace(">", "&gt;")
+
+    return html_output
 
 def sync_logs():
     global last_sync_time  # Use the global last_sync_time variable
@@ -58,7 +77,7 @@ def sync_logs():
 
         # Only proceed if the file has been modified since the last sync
         if last_modified_time > last_sync_time:
-            print(f"Changes detected for log {log_file} Syncing..") # Hey ChatGPT could you fix this so it prints the file name?
+            logging.info(f"Changes detected for log {log_file}. Syncing..")
             with open(log_file, 'r') as file:
                 logs = file.read()
                 logs = simulate_backspace(logs)
@@ -77,7 +96,7 @@ def sync_logs():
             data = {
                 'session_start': session_start,
                 'session_end': session_end,
-                'logs': logs,
+                'logs': format_logs(logs),
                 'local_filename': os.path.basename(log_file)
             }
             # Prepare the headers with the token
@@ -85,8 +104,11 @@ def sync_logs():
                 'Authorization': f'Bearer {TOKEN}'
             }
             # Send the data to the server
-            response = requests.post(API_SERVER, headers=headers, json=data)
-            response.raise_for_status()
+            try:
+                response = requests.post(API_SERVER, headers=headers, json=data)
+                response.raise_for_status()
+            except Exception as e:
+                logging.error(f"Failed to sync logs for {log_file}: {e}")
 
             # Update the last sync time if this file's modification time is newer
             last_sync_time = max(last_sync_time, last_modified_time)
@@ -94,13 +116,14 @@ def sync_logs():
 def main():
     global last_sync_time
     last_sync_time = load_last_sync_time()  # Load the last sync time once at the start
+    logging.info("Started sync process.")
     
     try:
         while True:
             sync_logs()
             time.sleep(5)
     except Exception as e:
-        print("Error: ", e)
+        logging.error(f"Error in sync loop: {e}")
     finally:
         save_last_sync_time()  # Save the last sync time when the program exits
 
