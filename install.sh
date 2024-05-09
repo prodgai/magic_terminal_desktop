@@ -102,6 +102,10 @@ else
     echo "Cron job already exists"
 fi
 
+echo "Launching initial background run of logsync.py"
+nohup /usr/local/bin/python3 $MAGIC_TERMINAL_DIR/logsync.py &
+echo "Logsync.py is now running in the background."
+
 # Change ownership of installed files and directories to the current user
 echo "Changing ownership of installed files and directories"
 run_with_sudo "chown -R $(whoami) \"$MAGIC_TERMINAL_DIR\" \"$INSTALL_BASE_DIR/magict\""

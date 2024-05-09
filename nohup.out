@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/usr/local/bin/magic_terminal/logsync.py", line 11, in <module>
+    import pyte
+ModuleNotFoundError: No module named 'pyte'
+Traceback (most recent call last):
+  File "/usr/local/bin/magic_terminal/logsync.py", line 11, in <module>
+    import pyte
+ModuleNotFoundError: No module named 'pyte'
+Traceback (most recent call last):
+  File "/usr/local/bin/magic_terminal/logsync.py", line 11, in <module>
+    import pyte
+ModuleNotFoundError: No module named 'pyte'
+Traceback (most recent call last):
+  File "/usr/local/bin/magic_terminal/logsync.py", line 132, in <module>
+    main()
+  File "/usr/local/bin/magic_terminal/logsync.py", line 124, in main
+    time.sleep(5)
+KeyboardInterrupt
