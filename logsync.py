@@ -63,7 +63,8 @@ def format_logs(log_content):
     stream.feed(log_content)
     html_output = ""
     for line in screen.display:
-        html_output += f"{line}\n".replace(" ", "&nbsp;").replace("<", "&lt;").replace(">", "&gt;")
+
+        html_output += line.replace('\r\n', '\n').replace('\r', '\n').replace('\n', '') + '\n'
 
     return html_output
 
@@ -78,9 +79,8 @@ def sync_logs():
         # Only proceed if the file has been modified since the last sync
         if last_modified_time > last_sync_time:
             logging.info(f"Changes detected for log {log_file}. Syncing..")
-            with open(log_file, 'r') as file:
-                logs = file.read()
-                logs = simulate_backspace(logs)
+            with open(log_file, 'rb') as file:
+                logs = format_logs(file.read())
 
             # Check if the session has ended
             if "Terminal logging session with ID" in logs:
@@ -91,12 +91,12 @@ def sync_logs():
 
             # Get the creation time of the log file
             session_start = datetime.fromtimestamp(pathlib.Path(log_file).stat().st_ctime).isoformat()
-
+            print(logs)
             # Construct the data to send to the server
             data = {
                 'session_start': session_start,
                 'session_end': session_end,
-                'logs': format_logs(logs),
+                'logs': logs,
                 'local_filename': os.path.basename(log_file)
             }
             # Prepare the headers with the token
@@ -121,7 +121,7 @@ def main():
     try:
         while True:
             sync_logs()
-            time.sleep(5)
+            time.sleep(30)
     except Exception as e:
         logging.error(f"Error in sync loop: {e}")
     finally:
